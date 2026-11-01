@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Control de puntualidad</title>
+  <meta name="theme-color" content="#0b4f9e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Puntualidad">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    html, body { margin: 0; height: 100%; background: #f1f7fe; font-family: system-ui, sans-serif; }
+    #app { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #f1f7fe; }
+    #cargando, #sinRed {
+      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1rem; background: #f1f7fe; color: #0b4f9e; text-align: center; padding: 1.5rem;
+    }
+    #sinRed { display: none; z-index: 2; }
+    .rueda { width: 2.5rem; height: 2.5rem; border: 4px solid #bddafb; border-top-color: #0b4f9e; border-radius: 50%; animation: g 1s linear infinite; }
+    @keyframes g { to { transform: rotate(360deg); } }
+    button { background: #0b4f9e; color: #fff; border: 0; border-radius: .5rem; padding: .75rem 1.25rem; font-size: 1rem; }
+    @media (prefers-reduced-motion: reduce) { .rueda { animation: none; } }
+  </style>
+</head>
+<body>
+  <!-- ▼▼ CAMBIA ESTA URL por la de tu implementación (termina en /exec) ▼▼ -->
+  <script>const APP_URL = 'https://script.google.com/macros/s/AKfycbz_Oc6hv-94UfTtjvmHMqxpGVlblmwnfSIlnMyURtETjgz1AujcSIr_AKOT0diUJ6HL/exec';</script>
+
+  <div id="cargando"><div class="rueda" aria-hidden="true"></div><div>Cargando…</div></div>
+  <div id="sinRed" role="alert">
+    <strong>Sin conexión</strong>
+    <span>Esta aplicación necesita internet para analizar los archivos.</span>
+    <button type="button" id="reintentar">Reintentar</button>
+  </div>
+  <iframe id="app" title="Control de puntualidad" allow="clipboard-write; fullscreen" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+  <script>
+    (function () {
+      const f = document.getElementById('app'), cargando = document.getElementById('cargando'), sinRed = document.getElementById('sinRed');
+
+      function cargar() {
+        sinRed.style.display = 'none';
+        cargando.style.display = 'flex';
+        // Conserva ?admin (u otros parámetros) al abrir la PWA: index.html?admin → /exec?admin
+        const q = location.search || '';
+        f.src = APP_URL + q;
+      }
+      f.addEventListener('load', function () { if (navigator.onLine) cargando.style.display = 'none'; });
+
+      function estado() {
+        if (!navigator.onLine) { cargando.style.display = 'none'; sinRed.style.display = 'flex'; }
+      }
+      window.addEventListener('offline', estado);
+      window.addEventListener('online', function () { if (sinRed.style.display === 'flex') cargar(); });
+      document.getElementById('reintentar').onclick = function () { navigator.onLine ? cargar() : estado(); };
+
+      if (navigator.onLine) cargar(); else estado();
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+      }
+    })();
+  </script>
+</body>
+</html>
