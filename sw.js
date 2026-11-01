@@ -1,6 +1,6 @@
 /* Service worker del shell PWA. Cachea solo el shell (esta página, manifest e iconos).
    La app de Apps Script (iframe) siempre se pide a la red: necesita el servidor. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'puntualidad-shell-' + VERSION;
 const SHELL = [
   './', './index.html', './manifest.webmanifest',
